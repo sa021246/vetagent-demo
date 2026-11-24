@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VetAgent AI - 動物醫院智慧營運與影像品管中樞</title>
+<style>
+  :root {
+    --bg-dark: #0b1320;
+    --card-bg: #131f33;
+    --accent-teal: #14b8a6;
+    --accent-blue: #38bdf8;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+  }
+  * { box-sizing: border-box; font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; }
+  body { margin: 0; background: var(--bg-dark); color: var(--text-main); line-height: 1.6; }
+  header {
+    background: linear-gradient(90deg, #0f172a 0%, #115e59 100%);
+    padding: 16px 24px; border-bottom: 1px solid #1e293b;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  }
+  .brand { font-size: 1.25rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+  .badge { background: rgba(20, 184, 166, 0.2); color: #5eead4; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; border: 1px solid #14b8a6; }
+  nav { display: flex; gap: 8px; flex-wrap: wrap; background: #0f172a; padding: 12px 24px; border-bottom: 1px solid #1e293b; }
+  .tab-btn {
+    background: #1e293b; color: var(--text-muted); border: 1px solid #334155;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s;
+  }
+  .tab-btn.active { background: var(--accent-teal); color: #042f2e; border-color: var(--accent-teal); }
+  .container { max-width: 1150px; margin: 24px auto; padding: 0 20px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; margin-bottom: 24px; }
+  .card { background: var(--card-bg); border: 1px solid #1e293b; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+  .card h3 { margin-top: 0; color: var(--accent-blue); font-size: 1.1rem; }
+  .kpi { font-size: 1.8rem; font-weight: 700; color: #5eead4; margin: 8px 0; }
+  .btn {
+    background: var(--accent-teal); color: #042f2e; border: none; padding: 10px 18px;
+    border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; transition: 0.2s;
+  }
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--accent-teal); color: #5eead4; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.92rem; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #1e293b; }
+  th { color: var(--text-muted); background: #0f172a; }
+  .status-high { color: #fca5a5; background: rgba(239,68,68,0.2); padding: 2px 8px; border-radius: 6px; font-weight: 600; }
+  .status-ok { color: #6ee7b7; background: rgba(16,185,129,0.2); padding: 2px 8px; border-radius: 6px; }
+  .report-box {
+    background: #0f172a; border-left: 4px solid var(--accent-teal); padding: 16px;
+    border-radius: 8px; margin-top: 16px; white-space: pre-line; font-size: 0.95rem; color: #e2e8f0;
+  }
+  .alert-box {
+    background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger);
+    padding: 16px; border-radius: 10px; margin-top: 16px; color: #fecaca;
+  }
+  input[type="text"], select, textarea {
+    width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155;
+    border-radius: 8px; color: #fff; margin-top: 6px; margin-bottom: 12px;
+  }
+  .upload-bar {
+    background: #0f172a; border: 1px dashed #334155; padding: 12px 16px; border-radius: 8px;
+    margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">🐾 VetAgent AI 動物醫院智慧營運與品管中樞 <span class="badge">純本地離線安全架構</span></div>
+  <div style="font-size: 0.85rem; color: #cbd5e1;">開發團隊：AeroAgent 醫療自動化組 (台中) ｜ LINE: sa021246</div>
+</header>
+
+<nav>
+  <button class="tab-btn active" id="nav-home" onclick="showTab('home', this)">🏥 院區營運總控台</button>
+  <button class="tab-btn" id="nav-lab" onclick="showTab('lab', this)">🩺 01. 血檢/影像白話文助手</button>
+  <button class="tab-btn" id="nav-line" onclick="showTab('line', this)">💬 02. LINE術後關懷與急症煞車</button>
+  <button class="tab-btn" id="nav-rpa" onclick="showTab('rpa', this)">📋 03. X光機輻防與藥品自動申報</button>
+</nav>
+
+<div class="container">
+  <!-- 總控台首頁 -->
+  <div id="home" class="section active">
+    <div class="grid-3">
+      <div class="card">
+        <h3>省下櫃檯與醫師溝通工時</h3>
+        <div class="kpi">75% ⬇</div>
+        <p style="color:var(--text-muted);font-size:0.9rem;">血檢數據 10 秒轉譯為飼主白話照護單，LINE 術後追蹤全自動排程。</p>
+      </div>
+      <div class="card">
+        <h3>急症人機協作安全煞車 (HITL)</h3>
+        <div class="kpi" style="color:#fca5a5;">0 漏接</div>
+        <p style="color:var(--text-muted);font-size:0.9rem;">飼主回覆高風險症狀（滲血/抽搐/喘氣）毫秒級亮紅燈轉接值班獸醫師。</p>
+      </div>
+      <div class="card">
+        <h3>輻防法規與管制藥品合規率</h3>
+        <div class="kpi" style="color:#6ee7b7;">100%</div>
+        <p style="color:var(--text-muted);font-size:0.9rem;">X光機年度檢測與管制藥品申報自動檢核填表，杜絕行政疏失罰鍰。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💡 專為連鎖與中小型動物醫院設計的「免改 HIS 系統」外掛解決方案</h3>
+      <p style="color:#cbd5e1;">無需更換院內現有病歷系統，支援<strong>純本地 Windows 電腦離線運行（病歷絕不上傳雲端）</strong>，匯出檢驗 CSV 或串接官方 LINE 即可立即啟用：</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
+        <button class="btn" onclick="document.getElementById('nav-lab').click()">體驗 01：血檢報告一鍵生成飼主解說單 👉</button>
+        <button class="btn btn-outline" onclick="document.getElementById('nav-line').click()">體驗 02：測試 LINE 術後急症紅燈警報 👉</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模組 01：血檢與影像白話文助手 -->
+  <div id="lab" class="section">
+    <div class="card">
+      <h3>🩺 模組 01｜血檢與影像數據 AI 異常標註與飼主白話解說生成器</h3>
+      <p style="color:var(--text-muted);font-size:0.9rem;">支援匯入血檢儀器 CSV 檔或選擇內建示範病歷，10 秒自動標出紅字並產出溫暖易懂的 LINE 飼主衛教單。</p>
+      
+      <div class="upload-bar">
+        <span style="font-size:0.9rem; color:#5eead4;">📂 匯入血檢儀器 CSV 檔測試（選填）：</span>
+        <input type="file" id="csvUpload" accept=".csv" style="color:#cbd5e1; font-size:0.85rem;" onchange="handleCsvUpload(event)">
+      </div>
+
+      <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+        <label style="font-size:0.9rem;">或選擇示範病歷：</label>
+        <select id="petSelect" style="width:auto; margin:0;" onchange="loadPetData()">
+          <option value="cat_kidney">病歷 #A102｜橘子 (11歲 結紮公貓) - 健檢腎功能異常</option>
+          <option value="dog_liver">病歷 #B205｜豆豆 (8歲 柴犬) - 術前肝指數偏高</option>
+        </select>
+        <button class="btn" onclick="generateOwnerReport()">✨ 一鍵生成飼主白話文解說單</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>檢驗項目</th><th>檢測數值</th><th>標準參考值</th><th>AI 判讀狀態</th></tr>
+        </thead>
+        <tbody id="labTableBody"></tbody>
+      </table>
+
+      <div id="ownerReportOutput" class="report-box" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- 模組 02：LINE 術後關懷與急症煞車 -->
+  <div id="line" class="section">
+    <div class="card">
+      <h3>💬 模組 02｜LINE 官方帳號術後自動關懷 ＋ 急症紅燈安全煞車 (HITL)</h3>
+      <p style="color:var(--text-muted);font-size:0.9rem;">AI 自動執行術後第 1/3/7 天關懷，但遇到醫療風險關鍵字時<strong>強制停止 AI 自由發揮</strong>，立即通報獸醫師接管。</p>
+
+      <label>模擬飼主在院方官方 LINE 傳來的回覆訊息：</label>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+        <button class="btn btn-outline" onclick="setMsg('今天精神不錯，飼料都有吃完，傷口乾乾的！')">測試正常回覆</button>
+        <button class="btn btn-danger" onclick="setMsg('醫師不好了，他剛才把頭套弄掉，現在傷口一直在滲血而且呼吸很急促！')">測試急症高風險回覆</button>
+      </div>
+      <textarea id="ownerMsgInput" rows="2">醫師不好了，他剛才把頭套弄掉，現在傷口一直在滲血而且呼吸很急促！</textarea>
+      <button class="btn" onclick="analyzeLineMsg()">執行 AI 風險分級審查</button>
+
+      <div id="lineResultBox"></div>
+    </div>
+  </div>
+
+  <!-- 模組 03：X光機輻防與藥品自動申報 -->
+  <div id="rpa" class="section">
+    <div class="card">
+      <h3>📋 模組 03｜X 光機游離輻射防護法規 ＋ 管制藥品申報 RPA 自動填表</h3>
+      <p style="color:var(--text-muted);font-size:0.9rem;">結合臨床醫事放射品管檢核邏輯，自動監控院內 X 光設備證照效期與管制藥品結存量，一鍵產出主管機關申報表單。</p>
+
+      <table>
+        <thead>
+          <tr><th>合規檢核項目</th><th>設備/藥品編號</th><th>到期/申報期限</th><th>合規狀態</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>動物用 X 光機年度輻射安全檢測</td><td>XRAY-VET-01 (數位DR)</td><td>2026-12-15 (剩21天)</td><td><span class="status-high">⚠️ 需預約檢測與申報</span></td></tr>
+          <tr><td>放射工作人員劑量佩章月度紀錄</td><td>STAFF-01 ~ 04</td><td>2026-11-30</td><td><span class="status-ok">✅ 數值正常 (0.02 mSv)</span></td></tr>
+          <tr><td>第 1～3 級管制藥品 (麻醉/止痛) 結存申報</td><td>CTRL-DRUG-2026Q4</td><td>2026-12-10</td><td><span class="status-ok">✅ 帳實相符</span></td></tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:16px;">
+        <button class="btn" onclick="runRpaForm()">⚡ 一鍵啟動 RPA 自動產生主管機關申報書</button>
+      </div>
+      <div id="rpaOutput" class="report-box" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const petData = {
+    cat_kidney: [
+      { item: 'BUN (血中尿素氮)', val: '42 mg/dL', ref: '16 - 36 mg/dL', status: 'high', label: '偏高 ⚠️' },
+      { item: 'CREA (肌酸酐)', val: '2.6 mg/dL', ref: '0.8 - 2.4 mg/dL', status: 'high', label: '輕度偏高 ⚠️' },
+      { item: 'ALT (肝臟指數)', val: '58 U/L', ref: '12 - 130 U/L', status: 'ok', label: '正常 ✅' },
+      { item: 'WBC (白血球總數)', val: '11.2 K/uL', ref: '5.5 - 19.5 K/uL', status: 'ok', label: '正常 ✅' }
+    ],
+    dog_liver: [
+      { item: 'ALT (肝臟指數)', val: '245 U/L', ref: '10 - 125 U/L', status: 'high', label: '明顯偏高 ⚠️' },
+      { item: 'ALKP (鹼性磷酸酶)', val: '310 U/L', ref: '23 - 212 U/L', status: 'high', label: '偏高 ⚠️' },
+      { item: 'BUN (血中尿素氮)', val: '18 mg/dL', ref: '7 - 27 mg/dL', status: 'ok', label: '正常 ✅' },
+      { item: 'GLU (血糖)', val: '96 mg/dL', ref: '74 - 143 mg/dL', status: 'ok', label: '正常 ✅' }
+    ]
+  };
+
+  function showTab(id, btn) {
